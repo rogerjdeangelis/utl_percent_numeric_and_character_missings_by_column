@@ -1,0 +1,2 @@
+# utl_percent_numeric_and_character_missings_by_column
+Percent numeric and character missings by column
