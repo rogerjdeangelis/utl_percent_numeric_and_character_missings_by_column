@@ -1,10 +1,41 @@
 # utl_percent_numeric_and_character_missings_by_column
 Percent numeric and character missings by column
-    Percent numeric and character missings by column
+    Percent numeric and character missings by column (additional improved solution?)
 
-      Two Solutions
-         WPS/SAS
-         WPS/PROC R  SAS/IML
+    Added an additional solution (utl_gather and proc corresp)
+
+    * cannot do with one proc transpose;
+    %utl_gather(sd1.have,var,val,,havxpo,valformat=4.);
+
+    ods exclude all;
+    ods output rowprofilespct=want;
+    proc corresp data=havxpo all dim=1 print=both missing;
+      format _numeric_ num2mis.;
+      table var, val;
+    run;quit;
+    ods select all;
+
+
+    WORK.WANT total obs=6
+
+     LABEL     MIS     POP
+
+      C1      37.5     62.5
+      C2      37.5     62.5
+      C3      37.5     62.5
+
+      X1      50.0     50.0
+      X2       0.0    100.0
+      X3      37.5     62.5
+
+    for gather macro Alea Iacta
+    https://github.com/clindocu/sas-macros-r-functions
+
+
+      Three Solutions
+         Base SAS
+         R
+         utl_gather and proc corresp (best SAS solution)
 
     Original topic: Send this IML output to dataset instead of result window
 
@@ -33,11 +64,6 @@ Percent numeric and character missings by column
 
        SAS/WPS
 
-         proc format;
-           value $chr2mis ' '='MIS' other='POP' ;
-           value num2mis . = 'MIS'  other='POP' ;
-         run;quit;
-
          proc freq data=sd1.have ;
             format _numeric_    num2mis.;
             format _character_ $chr2mis.;
@@ -50,6 +76,23 @@ Percent numeric and character missings by column
            var=scan(table,2);
            keep mispop table percent;
          run;quit;
+
+       SAS utl_gather and proc corresp
+
+         %utl_gather(sd1.have,var,val,,havxpo,valformat=4.);
+
+         proc format;
+           value $chr2mis ' '='MIS' other='POP' ;
+           value num2mis . = 'MIS'  other='POP' ;
+         run;quit;
+         ods exclude all;
+         ods output rowprofilespct=want;
+         proc corresp data=havxpo all dim=1 print=both missing;
+         format _numeric_ num2mis.;
+         table var, val;
+         run;quit;
+         ods select all;
+
 
     OUTPUT
     ======
@@ -113,6 +156,18 @@ Percent numeric and character missings by column
      end;
     run;quit;
 
+    %utl_gather(sd1.have,var,val,,havxpo,valformat=4.);
+
+    ods trace on;
+    ods exclude all;
+    ods output rowprofilespct=want;
+    proc corresp data=havxpo all dim=1 print=both missing;
+    format _numeric_ num2mis.;
+    table var, val;
+    run;quit;
+    ods select all;
+    ods trace off;
+
     *          _       _   _
      ___  ___ | |_   _| |_(_) ___  _ __  ___
     / __|/ _ \| | | | | __| |/ _ \| '_ \/ __|
@@ -125,6 +180,10 @@ Percent numeric and character missings by column
 
 
     %utl_submit_wps64('
+    proc format;
+      value $chr2mis ' '='MIS' other='POP' ;
+      value num2mis . = 'MIS'  other='POP' ;
+    run;quit;
     libname sd1 sas7bdat "d:/sd1";
     libname wrk sas7bdat "%sysfunc(pathname(work))";
     ods exclude all;
@@ -165,3 +224,19 @@ Percent numeric and character missings by column
     run;quit;
     ');
 
+
+    * SAS utl_gather;
+
+    %utl_gather(sd1.have,var,val,,havxpo,valformat=4.);
+
+    proc format;
+      value $chr2mis ' '='MIS' other='POP' ;
+      value num2mis . = 'MIS'  other='POP' ;
+    run;quit;
+    ods exclude all;
+    ods output rowprofilespct=want;
+    proc corresp data=havxpo all dim=1 print=both missing;
+    format _numeric_ num2mis.;
+    table var, val;
+    run;quit;
+    ods select all;
